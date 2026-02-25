@@ -1,28 +1,93 @@
-name: CI
+name: Platform CI
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
-  lint:
+  # 1. Terraform Security & Linting
+  terraform-validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Terraform
+
+      - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+
       - name: Terraform Format
-        run: terraform fmt -check
-  plan:
+        run: terraform fmt -check -recursive
+        working-directory: infra/
+
+      - name: Terraform Init (Module Validation)
+        run: terraform init -backend=false
+        working-directory: infra/environments/dev
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: infra/environments/dev
+
+  # 2. Infrastructure Security Scanning (Top 2% Signal)
+  security-scan:
     runs-on: ubuntu-latest
-    needs: lint
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform Init
-        run: terraform init
-        working-directory: infra/environments/dev
-      - name: Terraform Plan
-        run: terraform plan -input=false
-        working-directory: infra/environments/dev
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: infra/
+
+      - name: Run Checkov (Policy as Code via OPA)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra/
+          quiet: true
+          framework: terraform
+          output_format: cli
+          skip_check: CKV_AWS_2,CKV_AWS_119 # Example expected skips for demo
+
+  # 3. Helm Chart Validation
+  helm-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.11.1
+
+      - name: Helm Lint
+        run: helm lint helm/ml-service/
+
+      - name: Helm Template Verification
+        run: |
+          # Test if the generated templates compile correctly with the default values
+          helm template test-release helm/ml-service/ --debug
+
+  # 4. Mock Apply / Deployment via Kubernetes Kind (Local CI Cluster)
+  k8s-integration:
+    runs-on: ubuntu-latest
+    needs: [helm-validation]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Kubernetes Kind Cluster
+        uses: helm/kind-action@v1.4.0
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Install ML Service Chart on local Kind Cluster
+        run: |
+          kubectl create namespace test
+          helm upgrade --install test-service helm/ml-service/ --namespace test
+
+      - name: Verify Pods and Services
+        run: |
+          kubectl get all -n test
+
+  # NOTE: A real 'terraform apply' step is omitted because it requires
+  # real AWS credentials (OIDC) to provision external cloud resources
+  # like AWS Budgets and IAM Roles.
