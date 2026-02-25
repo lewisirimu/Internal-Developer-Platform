@@ -19,13 +19,17 @@ locals {
 # }
 
 module "ml_service_fraud-model" {
-  source       = "../../modules/ml-service"
-  service_name = "fraud-model"
-  environment  = "dev"
+  source            = "../../modules/ml-service"
+  service_name      = "fraud-model"
+  environment       = "dev"
+  oidc_provider_arn = local.oidc_provider_arn
+  oidc_provider_url = local.oidc_provider_url
 }
 
 module "ml_service_test" {
-  source       = "../../modules/ml-service"
-  service_name = "test"
-  environment  = "dev"
+  source            = "../../modules/ml-service"
+  service_name      = "test"
+  environment       = "dev"
+  oidc_provider_arn = local.oidc_provider_arn
+  oidc_provider_url = local.oidc_provider_url
 }

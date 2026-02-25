@@ -39,9 +39,11 @@ echo "Adding to Terraform dev environment..."
 cat <<EOF >> "$ROOT_DIR/infra/environments/dev/main.tf"
 
 module "ml_service_$SERVICE_NAME" {
-  source       = "../../modules/ml-service"
-  service_name = "$SERVICE_NAME"
-  environment  = "dev"
+  source            = "../../modules/ml-service"
+  service_name      = "$SERVICE_NAME"
+  environment       = "dev"
+  oidc_provider_arn = local.oidc_provider_arn
+  oidc_provider_url = local.oidc_provider_url
 }
 EOF
 
