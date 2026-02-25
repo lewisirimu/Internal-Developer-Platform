@@ -20,7 +20,13 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region                      = "us-east-1"
+  access_key                  = "mock_access_key"
+  secret_key                  = "mock_secret_key"
+  skip_credentials_validation = true
+  skip_metadata_api_check     = true
+  skip_requesting_account_id  = true
+
   default_tags {
     tags = {
       Environment = "dev"
@@ -30,7 +36,7 @@ provider "aws" {
   }
 }
 
-# Mock kubernetes provider configuration
+# Mock kubernetes provider configuration for CI environments
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  host = "https://mock-cluster.example.com"
 }
