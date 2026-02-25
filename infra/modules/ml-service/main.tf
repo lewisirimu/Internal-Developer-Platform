@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "ml_service_assume_role" {
     condition {
       test     = "StringEquals"
       variable = "${var.oidc_provider_url}:sub"
-      values   = ["system:serviceaccount:${kubernetes_namespace.ml_service.metadata[0].name}:${kubernetes_service_account.ml_service.metadata[0].name}"]
+      values   = ["system:serviceaccount:${var.service_name}:${var.service_name}-sa"]
     }
   }
 }
