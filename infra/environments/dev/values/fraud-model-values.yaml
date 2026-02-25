@@ -1,0 +1,11 @@
+# Auto-generated values for fraud-model (dev environment)
+image:
+  repository: my-org/fraud-model
+  tag: latest
+resources:
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+  requests:
+    cpu: "1"
+    memory: "2Gi"
