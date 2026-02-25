@@ -23,3 +23,9 @@ module "ml_service_fraud-model" {
   service_name = "fraud-model"
   environment  = "dev"
 }
+
+module "ml_service_test" {
+  source       = "../../modules/ml-service"
+  service_name = "test"
+  environment  = "dev"
+}

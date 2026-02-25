@@ -1,0 +1,11 @@
+# Auto-generated values for test (dev environment)
+image:
+  repository: my-org/test
+  tag: latest
+resources:
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+  requests:
+    cpu: "1"
+    memory: "2Gi"
