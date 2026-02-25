@@ -18,15 +18,25 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
       - name: Terraform Init
         run: terraform init
+        working-directory: infra/environments/dev
       - name: Terraform Plan
         run: terraform plan -input=false
+        working-directory: infra/environments/dev
   apply:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: plan
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform Init
+        run: terraform init
+        working-directory: infra/environments/dev
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
+        working-directory: infra/environments/dev
