@@ -42,11 +42,11 @@ resource "aws_iam_role" "ml_service_role" {
 
 # Example AWS Budget for the service to prevent runaway costs
 resource "aws_budgets_budget" "service_budget" {
-  name              = "${var.service_name}-budget-${var.environment}"
-  budget_type       = "COST"
-  limit_amount      = var.monthly_budget_limit
-  limit_unit        = "USD"
-  time_unit         = "MONTHLY"
+  name         = "${var.service_name}-budget-${var.environment}"
+  budget_type  = "COST"
+  limit_amount = var.monthly_budget_limit
+  limit_unit   = "USD"
+  time_unit    = "MONTHLY"
 
   notification {
     comparison_operator        = "GREATER_THAN"
