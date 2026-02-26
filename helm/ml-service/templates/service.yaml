@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: { { include "ml-service.fullname" . } }
+  name: '{{ include "ml-service.fullname" . }}'
   labels: { { - include "ml-service.labels" . | nindent 4 } }
 spec:
   type: { { .Values.service.type } }
